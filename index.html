@@ -101,6 +101,53 @@
   }
   .cat-sweets { background: var(--sweets-pink) !important; }
 
+  /* マップポップアップ */
+  .leaflet-popup-content-wrapper {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18) !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  .leaflet-popup-content {
+    margin: 0 !important;
+    min-width: 160px;
+  }
+  .popup-inner {
+    padding: 10px 13px 10px;
+  }
+  .popup-name {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .popup-score {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--vermillion);
+    margin-right: 6px;
+  }
+  .popup-cat {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: var(--ink);
+    color: white;
+    vertical-align: middle;
+  }
+  .popup-cat.sweets { background: var(--sweets-pink); }
+  .popup-footer {
+    background: var(--pale-gold);
+    border-top: 1px solid #e5d9bc;
+    padding: 5px 13px;
+    font-size: 0.68rem;
+    color: #888;
+  }
+
   /* ジャンルフィルター */
   .genre-filter-wrap {
     padding: 8px 10px;
@@ -180,7 +227,7 @@
   <div class="header-title"><h1>100名店MAP</h1></div>
   <div class="header-controls">
     <div class="search-bar">
-      <input id="search-input" type="text" placeholder="場所・駅名...">
+      <input id="search-input" type="text" placeholder="場所・駅名..." onkeydown="if(event.key==='Enter') executeSearch()">
       <button onclick="executeSearch()" style="background:var(--gold)">検索</button>
     </div>
     <button onclick="locateUser()">現在地</button>
@@ -274,7 +321,18 @@ function renderList(nearby) {
     listEl.appendChild(card);
     cards.push(card);
 
-    const m = L.marker([r.lat, r.lng]).addTo(map).bindPopup(`<b>${r.name}</b><br>★${r.score}`);
+    const swClass = r.cat === 'スイーツ' ? 'sweets' : '';
+    const popupHtml = `
+      <div class="popup-inner">
+        <div class="popup-name">${r.name}</div>
+        <div>
+          <span class="popup-score">★${r.score.toFixed(2)}</span>
+          <span class="popup-cat ${swClass}">${r.cat}</span>
+        </div>
+      </div>
+      <div class="popup-footer">${r.addr}</div>
+    `;
+    const m = L.marker([r.lat, r.lng]).addTo(map).bindPopup(popupHtml, { maxWidth: 240 });
     m.on('click', () => activateItem(idx));
     markers.push(m);
   });
